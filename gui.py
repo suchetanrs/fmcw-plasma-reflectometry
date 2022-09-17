@@ -1,9 +1,25 @@
+import numpy as np
+from matplotlib import pyplot as plt
+from matplotlib import gridspec
+import matplotlib
+matplotlib.use('TkAgg')
+from PyEMD import EMD, Visualisation
+import math
+from random import random
 
 import sys
 from PyQt5 import QtCore, QtGui,QtWidgets
 from PyQt5.QtWidgets import QMessageBox, QVBoxLayout
 
-class Ui_Dialog(object):
+
+class SignalProcessing():
+
+    def __init__(self):
+        self.signal=0
+        self.time=0
+        self.signal_generation()
+        pass
+
     def setupUi(self, Dialog):
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
@@ -56,14 +72,94 @@ class Ui_Dialog(object):
         self.pushButton_6.setText(QtCore.QCoreApplication.translate("Dialog", u"Wigner Ville", None))
         self.pushButton_7.setText(QtCore.QCoreApplication.translate("Dialog", u"P Wigner Ville", None))
         self.pushButton_8.setText(QtCore.QCoreApplication.translate("Dialog", u"Smoothed Pseudo Wigner Ville", None))
+        self.pushButton.clicked.connect(self.show_plot)
+        self.pushButton_2.clicked.connect(self.emd)
     # retranslateUi
 
+
+    def signal_generation(self):
+        # Generating the self.signal
+        self.time=np.arange(0,10,0.1)
+        amplitude_sin1 = np.sin(self.time)
+        amplitude_sin05 = np.sin(0.5*self.time)
+        amplitude_cos2 = np.cos(2*self.time)
+        amplitude_cos3 = np.cos(3*self.time)
+        # noise = self.time*random()*1
+        # print(self.time,noise)
+        self.signal=amplitude_sin1*amplitude_cos3
+        # +amplitude_sin05+amplitude_cos2+amplitude_cos3
+
+
+    def emd(self):
+        # EMD generation
+        emd =EMD()
+        emd.emd(self.signal)
+        imfs, residue = emd.get_imfs_and_residue()
+        no_of_imf=len(imfs)
+
+
+        self.fig2 = plt.figure(constrained_layout=True)
+        spec2 = gridspec.GridSpec(ncols=1, nrows=no_of_imf+2, figure=self.fig2)
+        for i in range(0,no_of_imf):
+            print(i)
+            x = self.fig2.add_subplot(spec2[i,0])
+            x.plot(self.time,imfs[i],'r')
+        x = self.fig2.add_subplot(spec2[no_of_imf,0])
+        x.plot(self.time,residue,'b')
+        x = self.fig2.add_subplot(spec2[no_of_imf+1,0])
+        x.plot(self.time,self.signal,'g')
+
+
+    def show_plot(self):
+        plt.show()
+        # vis = Visualisation()
+        # vis.plot_imfs(imfs=imfs, residue=residue, t=self.time, include_residue=True)
+        # vis.plot_instant_freq(self.time, imfs=imfs)
+        # vis.show()
     
+
+    def main(self):
+        self.signal_generation()
+        self.emd()
+        self.show_plot()
+
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_Dialog()
+    ui = SignalProcessing()
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
+
+
+# f2_ax1 = self.fig2.add_subplot(spec2[0, 0])
+# f2_ax2 = self.fig2.add_subplot(spec2[0, 1])
+# f2_ax3 = self.fig2.add_subplot(spec2[1, 0])
+# f2_ax4 = self.fig2.add_subplot(spec2[1, 1])
+
+# f2_ax1.plot(self.time,self.signal)
+# f2_ax2.plot(self.time,imfs[0])
+# f2_ax3.plot(self.time,imfs[1])
+# f2_ax4.plot(self.time,residue)
+
+# plt.show()
+# print(np.size(imfs[1]))
+# plt.plot(self.time,imfs[1])
+# plt.show()
+# plt.subplot(1,4,4)
+# plt.plot(self.time,self.signal)
+
+# plt.subplot(1,4,1)
+# plt.plot(self.time,imfs[0])
+
+# plt.subplot(1,4,2)
+# plt.plot(self.time,imfs[1])
+
+# plt.subplot(1,4,3)
+# plt.plot(self.time,residue)
+
+# plt.show()
+
+
