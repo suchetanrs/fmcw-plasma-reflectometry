@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 from matplotlib import gridspec
 import matplotlib
 matplotlib.use('TkAgg')
-from PyEMD import EMD, Visualisation
+from PyEMD import EMD, Visualisation, EEMD
 import math
 from random import random
 import tftb
@@ -55,6 +55,27 @@ class SignalProcessing():
         self.pushButton_8 = QtWidgets.QPushButton(Dialog)
         self.pushButton_8.setObjectName(u"pushButton_8")
         self.pushButton_8.setGeometry(QtCore.QRect(650, 230, 221, 25))
+        self.checkBox = QtWidgets.QCheckBox(Dialog)
+        self.checkBox.setObjectName(u"checkBox")
+        self.checkBox.setGeometry(QtCore.QRect(110, 60, 16, 23))
+        self.checkBox_2 = QtWidgets.QCheckBox(Dialog)
+        self.checkBox_2.setObjectName(u"checkBox_2")
+        self.checkBox_2.setGeometry(QtCore.QRect(110, 100, 16, 23))
+        self.checkBox_3 = QtWidgets.QCheckBox(Dialog)
+        self.checkBox_3.setObjectName(u"checkBox_3")
+        self.checkBox_3.setGeometry(QtCore.QRect(110, 140, 16, 23))
+        self.checkBox_4 = QtWidgets.QCheckBox(Dialog)
+        self.checkBox_4.setObjectName(u"checkBox_4")
+        self.checkBox_4.setGeometry(QtCore.QRect(630, 110, 16, 23))
+        self.checkBox_5 = QtWidgets.QCheckBox(Dialog)
+        self.checkBox_5.setObjectName(u"checkBox_5")
+        self.checkBox_5.setGeometry(QtCore.QRect(630, 150, 16, 23))
+        self.checkBox_6 = QtWidgets.QCheckBox(Dialog)
+        self.checkBox_6.setObjectName(u"checkBox_6")
+        self.checkBox_6.setGeometry(QtCore.QRect(630, 190, 16, 23))
+        self.checkBox_7 = QtWidgets.QCheckBox(Dialog)
+        self.checkBox_7.setObjectName(u"checkBox_7")
+        self.checkBox_7.setGeometry(QtCore.QRect(630, 230, 16, 23))
 
         self.retranslateUi(Dialog)
 
@@ -75,6 +96,8 @@ class SignalProcessing():
         self.pushButton_8.setText(QtCore.QCoreApplication.translate("Dialog", u"Smoothed Pseudo Wigner Ville", None))
         self.pushButton.clicked.connect(self.show_plot)
         self.pushButton_2.clicked.connect(self.emd)
+        self.pushButton_3.clicked.connect(self.eemd)
+        self.pushButton_5.clicked.connect(self.stft)
     # retranslateUi
 
 
@@ -110,6 +133,31 @@ class SignalProcessing():
         x = self.fig2.add_subplot(spec2[no_of_imf+1,0])
         x.plot(self.time,self.signal,'g')
     
+
+    def eemd(self):
+        eemd=EEMD()
+        eemd.eemd(self.signal)
+        imfs, residue = eemd.get_imfs_and_residue()
+        no_of_imf=len(imfs)
+
+        self.fig3 = plt.figure(constrained_layout=True)
+        spec2 = gridspec.GridSpec(ncols=1, nrows=no_of_imf+2, figure=self.fig3)
+        for i in range(0,no_of_imf):
+            print(i)
+            x = self.fig3.add_subplot(spec2[i,0])
+            x.plot(self.time,imfs[i],'r')
+        x = self.fig3.add_subplot(spec2[no_of_imf,0])
+        x.plot(self.time,residue,'b')
+        x = self.fig3.add_subplot(spec2[no_of_imf+1,0])
+        x.plot(self.time,self.signal,'g')
+
+
+    def stft(self):
+        self.fig4 = plt.figure(constrained_layout=True)
+        spec2 = gridspec.GridSpec(ncols=1, nrows=1, figure=self.fig4)
+        x = self.fig4.add_subplot(spec2[0,0])
+        x.specgram(self.signal,Fs=10)
+
     def wvd(self):
         # Wigner Ville Distribution
         fs = 10
@@ -174,34 +222,5 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
-
-
-# f2_ax1 = self.fig2.add_subplot(spec2[0, 0])
-# f2_ax2 = self.fig2.add_subplot(spec2[0, 1])
-# f2_ax3 = self.fig2.add_subplot(spec2[1, 0])
-# f2_ax4 = self.fig2.add_subplot(spec2[1, 1])
-
-# f2_ax1.plot(self.time,self.signal)
-# f2_ax2.plot(self.time,imfs[0])
-# f2_ax3.plot(self.time,imfs[1])
-# f2_ax4.plot(self.time,residue)
-
-# plt.show()
-# print(np.size(imfs[1]))
-# plt.plot(self.time,imfs[1])
-# plt.show()
-# plt.subplot(1,4,4)
-# plt.plot(self.time,self.signal)
-
-# plt.subplot(1,4,1)
-# plt.plot(self.time,imfs[0])
-
-# plt.subplot(1,4,2)
-# plt.plot(self.time,imfs[1])
-
-# plt.subplot(1,4,3)
-# plt.plot(self.time,residue)
-
-# plt.show()
 
 
