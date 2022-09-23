@@ -6,6 +6,7 @@ matplotlib.use('TkAgg')
 from PyEMD import EMD, Visualisation
 import math
 from random import random
+import tftb
 
 import sys
 from PyQt5 import QtCore, QtGui,QtWidgets
@@ -108,6 +109,19 @@ class SignalProcessing():
         x.plot(self.time,residue,'b')
         x = self.fig2.add_subplot(spec2[no_of_imf+1,0])
         x.plot(self.time,self.signal,'g')
+    
+    def wvd(self):
+        # Wigner Ville Distribution
+        fs = 10
+        dt = 1/fs
+        ts = self.time
+        ts = ts*dt
+
+        wvd = tftb.processing.WignerVilleDistribution(self.signal, timestamps=ts)
+        tfr_wvd, t_wvd, f_wvd = wvd.run()
+
+        f_wvd = np.fft.fftshift(np.fft.fftfreq(tfr_wvd.shape[0], d=2 * dt))
+        df_wvd = f_wvd[1]-f_wvd[0]  
 
 
     def show_plot(self):
