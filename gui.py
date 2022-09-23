@@ -121,7 +121,35 @@ class SignalProcessing():
         tfr_wvd, t_wvd, f_wvd = wvd.run()
 
         f_wvd = np.fft.fftshift(np.fft.fftfreq(tfr_wvd.shape[0], d=2 * dt))
-        df_wvd = f_wvd[1]-f_wvd[0]  
+        df_wvd = f_wvd[1]-f_wvd[0] 
+
+        x = self.fig2.add_subplot()
+        x.plot(self.time, np.fft.fftshift(tfr_wvd, axes=0))
+        # set xlabel, ylabel 
+
+    def HilbertHuangTransform(self):
+        ''' 
+        EMD -> Hilbert transform to calculate IFs -> Time-frequency distribution
+        '''
+        emd =EMD()
+        emd.emd(self.signal)
+        imfs, _ = emd.get_imfs_and_residue()
+
+        # IP - instantaneous phase, IF - frequency, IA - amplitude
+        IP, IF, IA = emd.spectra.frequency_transform(imfs, 256, 'nht')
+
+        freq_edges, freq_centres = emd.spectra.define_hist_bins(0, 100, 128, 'linear')   # need to change range from 0-100 to signal range
+
+        # Amplitude weighted HHT per IMF
+        f, spec_weighted = emd.spectra.hilberthuang(IF, IA, freq_edges, sum_imfs=False)
+
+        plt.plot(freq_centres, spec_weighted)
+        plt.xticks(np.arange(10)*10)
+        plt.xlim(0, 100)
+        plt.xlabel('Frequency (Hz)')
+        plt.ylabel('Power')
+        plt.title('IA-weighted\nHilbert-Huang Transform')
+        plt.legend(['IMF-1', 'IMF-2', 'IMF-3', 'IMF-4', 'IMF-5'], frameon=False)
 
 
     def show_plot(self):
